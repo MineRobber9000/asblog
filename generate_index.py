@@ -9,7 +9,7 @@ for post in POSTS:
 	if not postc.get("published",False): continue
 	title = postc.get("title")
 	pslug = slug(title)
-	excerpt = truncate(re.sub(r"\[([^\]]+)\]\([^)]+\)",r"\g<1>",re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")),postc.get("excerpt_length"))
+	excerpt = truncate(re.sub(r"\[([^\]]+)\](?:\([^)]+\)|\[\])",r"\g<1>",re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")),postc.get("excerpt_length"))
 	pubdate = postc.get("pubdate")
 	ENTRIES.append(dict(title=title,pslug=pslug,pubdate=pubdate,excerpt=excerpt))
 
