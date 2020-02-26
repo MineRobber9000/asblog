@@ -2,6 +2,11 @@ from config import *
 from util import *
 from os import system
 import re
+import markdown
+from mdx_partial_gfm import PartialGithubFlavoredMarkdownExtension
+from bs4 import BeautifulSoup as soup
+
+gfm = markdown.Markdown(extensions=[PartialGithubFlavoredMarkdownExtension()])
 
 system("rm -rf in")
 system("mkdir in")
@@ -11,8 +16,11 @@ for post in POSTS:
 	if not postc.get("published",False): continue
 	title = postc.get("title")
 	pslug = slug(title)
-	excerpt = truncate(re.sub(r"\[([^\]]+)\](?:\([^)]+\)|\[([^\]]+)\])",r"\g<1>",re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")),postc.get("excerpt_length"))
-	with open("in/{}.md".format(pslug),"w") as f:
+	first_paragraph = re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")
+	# convert to real text
+	first_paragraph = soup(gfm.convert(first_paragraph),"html.parser").text
+	excerpt = truncate(first_paragraph,postc.get("excerpt_length"))
+	with open("in/{}.html".format(pslug),"w") as f:
 		f.write("<!-- attrib title: {} -->\n<!-- attrib description: {}-->\n<!-- attrib template: post -->\n<!-- attrib sitename: {} -->\n\n".format(title,excerpt,BLOG_NAME))
-		f.write("# {} (published {})\n\n".format(title,postc.get("pubdate","1970-01-01")))
-		f.write(postc.content)
+		f.write("<h1>{} (published {})</h1>\n\n".format(title,postc.get("pubdate","1970-01-01")))
+		f.write(gfm.convert(postc.content).replace("<table>","<table class='table table-striped table-hover'>"))

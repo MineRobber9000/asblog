@@ -1,6 +1,11 @@
 import os,re,frontmatter,datetime
 from config import *
 from util import *
+import markdown
+from mdx_partial_gfm import PartialGithubFlavoredMarkdownExtension
+from bs4 import BeautifulSoup as soup
+
+gfm = markdown.Markdown(extensions=[PartialGithubFlavoredMarkdownExtension()])
 
 ENTRIES = []
 
@@ -9,7 +14,10 @@ for post in POSTS:
 	if not postc.get("published",False): continue
 	title = postc.get("title")
 	pslug = slug(title)
-	excerpt = truncate(re.sub(r"\[([^\]]+)\](?:\([^)]+\)|\[\])",r"\g<1>",re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")),postc.get("excerpt_length"))
+	first_paragraph = re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")
+	# convert to real text
+	first_paragraph = soup(gfm.convert(first_paragraph),"html.parser").text
+	excerpt = truncate(first_paragraph,postc.get("excerpt_length"))
 	pubdate = postc.get("pubdate")
 	ENTRIES.append(dict(title=title,pslug=pslug,pubdate=pubdate,excerpt=excerpt))
 
