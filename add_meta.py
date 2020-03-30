@@ -15,10 +15,8 @@ for post in POSTS:
 	postc = POSTS[post]
 	if not postc.get("published",False): continue
 	title = postc.get("title")
-	pslug = slug(title)
-	first_paragraph = re.split("\n{2,}",postc.content)[0].replace("\n"," ").replace("  "," ")
-	# convert to real text
-	first_paragraph = soup(gfm.convert(first_paragraph),"html.parser").text
+	pslug = slug(postc)
+	first_paragraph = soup(gfm.convert(postc.content),"html.parser").find("p").text.replace("\n"," ").replace("  "," ")
 	excerpt = truncate(first_paragraph,postc.get("excerpt_length"))
 	with open("in/{}.html".format(pslug),"w") as f:
 		f.write("<!-- attrib title: {} -->\n<!-- attrib description: {}-->\n<!-- attrib template: post -->\n<!-- attrib sitename: {} -->\n\n".format(title,excerpt,BLOG_NAME))
