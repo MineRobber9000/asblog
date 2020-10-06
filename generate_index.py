@@ -19,14 +19,21 @@ for post in POSTS:
 	pubdate = postc.get("pubdate")
 	ENTRIES.append(dict(title=title,pslug=pslug,pubdate=pubdate,excerpt=excerpt,mtime=postc.get("mtime")))
 
-ENTRIES.sort(key=lambda x: x["pubdate"])
+ENTRIES.sort(key=lambda x: (x["pubdate"],x["title"]))
 ENTRIES.reverse()
-ENTRIES = ENTRIES[:POSTS_SHOWN]
 
 os.system("mkdir -p in")
+os.system("mkdir -p includes")
 with open("in/index.md","w") as f:
 	f.write("<!-- attrib title: {} -->\n<!-- attrib description: {} -->\n<!-- attrib template: default -->\n\n".format(BLOG_NAME,BLOG_DESCRIPTION))
 	f.write("# {}\n\n".format(BLOG_NAME))
+	for post in ENTRIES[:POSTS_SHOWN]:
+		f.write("## [{post[title]}](./{post[pslug]}.html) - published {post[pubdate]}\n\n{post[excerpt]}\n\n".format(post=post))
+	f.write("[Show older posts](archive.html)")
+
+with open("in/archive.md") as f:
+	f.write("""<!-- attrib title: Archive | {0} -->\n<!-- attrib description: Index of all of the posts from {0}. -->\n<!-- attrib template: default -->\n\n""".format(BLOG_NAME))
+	f.write("# Archive\n\n")
 	for post in ENTRIES:
 		f.write("## [{post[title]}](./{post[pslug]}.html) - published {post[pubdate]}\n\n{post[excerpt]}\n\n".format(post=post))
 
@@ -45,7 +52,7 @@ with open("includes/feed.atom","w") as f:
 	f.write("<link rel=\"self\" href=\""+BLOG_URL+"/feed.atom\" />\n<link href=\""+BLOG_URL+"\" />\n")
 	f.write("<id>"+UUID+"</id>\n")
 	f.write("<author><name>"+BLOG_NAME+"</name></author>\n")
-	for post in ENTRIES:
+	for post in ENTRIES[:POSTS_SHOWN]:
 		f.write("<entry>\n")
 		# title
 		f.write("\t<title>"+post["title"]+"</title>\n")
