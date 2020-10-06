@@ -31,7 +31,7 @@ with open("in/index.md","w") as f:
 		f.write("## [{post[title]}](./{post[pslug]}.html) - published {post[pubdate]}\n\n{post[excerpt]}\n\n".format(post=post))
 	f.write("[Show older posts](archive.html)")
 
-with open("in/archive.md") as f:
+with open("in/archive.md","w") as f:
 	f.write("""<!-- attrib title: Archive | {0} -->\n<!-- attrib description: Index of all of the posts from {0}. -->\n<!-- attrib template: default -->\n\n""".format(BLOG_NAME))
 	f.write("# Archive\n\n")
 	for post in ENTRIES:
